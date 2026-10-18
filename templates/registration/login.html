@@ -1,0 +1,47 @@
+﻿{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Hub-Bot</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <main class="auth-layout">
+        <section class="auth-card">
+            <div class="brand-mark">H</div>
+            <p class="eyebrow">YOUR PERSONAL AI</p>
+            <h1>Welcome back.</h1>
+            <p class="muted">Sign in to continue to Hub-Bot.</p>
+
+            {% for message in messages %}
+                <p class="notice">{{ message }}</p>
+            {% endfor %}
+
+            <form method="post">
+                {% csrf_token %}
+                <label for="username">Username</label>
+                <input id="username" name="username" type="text"
+                       placeholder="Enter your username" required autocomplete="username">
+
+                <label for="password">Password</label>
+                <input id="password" name="password" type="password"
+                       placeholder="Enter your password" required autocomplete="current-password">
+
+                <button class="primary-btn" type="submit">Sign in <span>→</span></button>
+            </form>
+
+            <p class="auth-footer">New to Hub-Bot?
+                <a href="{% url 'register' %}">Create an account</a>
+            </p>
+        </section>
+        <aside class="auth-art">
+            <div class="orb orb-large"></div>
+            <p class="eyebrow">MEET YOUR NEW ASSISTANT</p>
+            <h2>One place.<br>Every idea.</h2>
+            <p class="muted">A smarter space to think, ask, and create.</p>
+        </aside>
+    </main>
+</body>
+</html>

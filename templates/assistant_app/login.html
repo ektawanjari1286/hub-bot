@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Hub-Bot</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #f3e8ff, #e0e7ff);
+            color: #28213c;
+        }
+        .login-card {
+            width: min(90%, 400px);
+            padding: 35px;
+            border-radius: 20px;
+            background: white;
+            box-shadow: 0 12px 40px #49327620;
+        }
+        h1 { margin: 0 0 8px; text-align: center; }
+        .subtitle { text-align: center; color: #716782; margin-bottom: 28px; }
+        label { display: block; margin: 15px 0 7px; }
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd4ee;
+            border-radius: 10px;
+            font-size: 15px;
+        }
+        button {
+            width: 100%;
+            margin-top: 22px;
+            padding: 13px;
+            border: 0;
+            border-radius: 10px;
+            color: white;
+            background: #7952c7;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button:hover { background: #6340a8; }
+        .message { color: #b42318; margin: 10px 0; }
+        .register { text-align: center; margin-top: 20px; }
+        a { color: #7046b8; }
+    </style>
+</head>
+<body>
+    <main class="login-card">
+        <h1>Welcome back</h1>
+        <p class="subtitle">Sign in to your Hub-Bot assistant</p>
+
+        {% if messages %}
+            {% for message in messages %}
+                <p class="message">{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+            <label for="username">Username</label>
+            <input id="username" type="text" name="username"
+                   autocomplete="username" required>
+
+            <label for="password">Password</label>
+            <input id="password" type="password" name="password"
+                   autocomplete="current-password" required>
+
+            <button type="submit">Login</button>
+        </form>
+
+        <p class="register">
+            Don't have an account?
+            <a href="{% url 'register' %}">Create account</a>
+        </p>
+    </main>
+</body>
+</html>

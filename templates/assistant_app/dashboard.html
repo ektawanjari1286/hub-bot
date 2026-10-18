@@ -1,0 +1,205 @@
+﻿
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hub-Bot AI Assistant</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=10">
+</head>
+<body>
+
+<div class="app-layout">
+
+    <!-- LEFT SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+
+        <div class="sidebar-top">
+            <a href="{% url 'dashboard' %}" class="brand">
+                <span class="brand-icon">✿</span>
+                <span>Hub-Bot</span>
+            </a>
+
+            <button type="button" id="close-sidebar"
+                    class="icon-btn mobile-close">✕</button>
+        </div>
+
+        <button type="button" class="new-chat-btn" id="new-chat-button">
+            <span>＋</span>
+            <span>New chat</span>
+        </button>
+
+        <div class="sidebar-section">
+            <p class="sidebar-label">WORKSPACE</p>
+
+            <div class="sidebar-link active">
+                <span>✿</span>
+                <span>AI Assistant</span>
+            </div>
+        </div>
+
+        <div class="sidebar-section recent-section">
+            <p class="sidebar-label">RECENT CHATS</p>
+
+            <div id="sidebar-history" class="sidebar-history">
+                <p class="history-empty">Loading conversations...</p>
+            </div>
+        </div>
+
+        <div class="sidebar-bottom">
+            <div class="user-profile">
+                <div class="user-avatar">
+                    {{ request.user.username|first|upper }}
+                </div>
+
+                <div class="user-info">
+                    <strong>{{ request.user.username }}</strong>
+                    <small>Personal account</small>
+                </div>
+            </div>
+
+            <form method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button class="logout-btn" type="submit">
+                    ↗ Logout
+                </button>
+            </form>
+        </div>
+    </aside>
+
+    <!-- MAIN CHAT AREA -->
+    <main class="main-panel">
+
+        <header class="main-header">
+            <button type="button" id="open-sidebar"
+                    class="icon-btn menu-btn"
+                    aria-label="Open sidebar">☰</button>
+
+            <div class="header-title">
+                Hub-Bot <span>AI</span>
+            </div>
+
+            <div class="model-label">
+                <span class="status-dot"></span>
+                Llama 3.2
+            </div>
+        </header>
+
+        <section class="conversation-area" id="conversation-area">
+
+            <!-- Welcome screen -->
+            <div id="welcome-screen" class="welcome-screen">
+                <div class="welcome-logo">✿</div>
+
+                <h1>What can I help with?</h1>
+
+                <p>
+                    Your personal AI assistant, ready whenever you are. 💜
+                </p>
+
+                <div class="suggestion-grid">
+
+                    <button type="button" class="suggestion-card"
+                            data-prompt="Explain artificial intelligence in simple words.">
+                        <span class="suggestion-icon">✧</span>
+                        <strong>Learn something</strong>
+                        <span>Understand any topic easily</span>
+                    </button>
+
+                    <button type="button" class="suggestion-card"
+                            data-prompt="Help me write a professional email.">
+                        <span class="suggestion-icon">✎</span>
+                        <strong>Write something</strong>
+                        <span>Emails, notes and messages</span>
+                    </button>
+
+                    <button type="button" class="suggestion-card"
+                            data-prompt="Give me some useful productivity ideas.">
+                        <span class="suggestion-icon">✧</span>
+                        <strong>Explore ideas</strong>
+                        <span>Find ideas and solutions</span>
+                    </button>
+
+                    <button type="button" class="suggestion-card"
+                            data-prompt="Help me understand Python programming.">
+                        <span class="suggestion-icon">{ }</span>
+                        <strong>Code with me</strong>
+                        <span>Learn programming step by step</span>
+                    </button>
+
+                </div>
+            </div>
+
+            <!-- Existing and new chat messages -->
+            <div id="chat-output" class="chat-output"
+                 aria-live="polite"></div>
+
+        </section>
+
+        <!-- MESSAGE COMPOSER -->
+        <footer class="composer-area">
+
+            <div id="voice-status" class="voice-status">
+                Ready when you are.
+            </div>
+
+            <form id="chat-form"
+                  class="chat-form"
+                  data-chat-url="{% url 'chat_api' %}"
+                  data-history-url="{% url 'chat_history_api' %}"
+                  method="post">
+
+                {% csrf_token %}
+
+                <textarea
+                    id="message-input"
+                    name="message"
+                    rows="1"
+                    placeholder="Message Hub-Bot..."
+                    aria-label="Type your message"
+                    required></textarea>
+
+                <div class="composer-actions">
+
+                    <button type="button"
+                            id="mic-button"
+                            class="composer-btn mic-btn"
+                            title="Speak your message">
+                        🎙
+                    </button>
+
+                    <button type="button"
+                            id="stop-speaking-button"
+                            class="composer-btn stop-btn"
+                            title="Stop voice playback">
+                        ■
+                    </button>
+
+                    <span class="composer-hint">
+                        Enter to send · Shift+Enter for new line
+                    </span>
+
+                    <button type="submit"
+                            id="send-button"
+                            class="send-btn"
+                            aria-label="Send message">
+                        ↑
+                    </button>
+
+                </div>
+            </form>
+
+            <p class="disclaimer">
+                Made with 💜 · Hub-Bot can make mistakes.
+                Check important information.
+            </p>
+
+        </footer>
+    </main>
+</div>
+
+<script src="{% static 'js/assistant.js' %}?v=10" defer></script>
+
+</body>
+</html>

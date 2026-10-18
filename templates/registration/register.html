@@ -1,0 +1,48 @@
+﻿{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create account | Hub-Bot</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <main class="auth-layout">
+        <section class="auth-card">
+            <div class="brand-mark">H</div>
+            <p class="eyebrow">GET STARTED</p>
+            <h1>Create account.</h1>
+            <p class="muted">Your personal AI workspace starts here.</p>
+
+            <form method="post">
+                {% csrf_token %}
+                {% if form.errors %}
+                    <div class="notice">{{ form.errors }}</div>
+                {% endif %}
+
+                <label for="{{ form.username.id_for_label }}">Username</label>
+                {{ form.username }}
+
+                <label for="{{ form.password1.id_for_label }}">Password</label>
+                {{ form.password1 }}
+
+                <label for="{{ form.password2.id_for_label }}">Confirm password</label>
+                {{ form.password2 }}
+
+                <button class="primary-btn" type="submit">Create account <span>→</span></button>
+            </form>
+
+            <p class="auth-footer">Already registered?
+                <a href="{% url 'login' %}">Sign in</a>
+            </p>
+        </section>
+        <aside class="auth-art">
+            <div class="orb orb-large"></div>
+            <p class="eyebrow">WELCOME TO HUB-BOT</p>
+            <h2>Your ideas<br>start here.</h2>
+            <p class="muted">One assistant for your everyday tasks.</p>
+        </aside>
+    </main>
+</body>
+</html>

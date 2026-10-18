@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register | Hub-Bot</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            margin: 0; min-height: 100vh; display: grid; place-items: center;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #f3e8ff, #e0e7ff);
+            color: #28213c;
+        }
+        .card {
+            width: min(90%, 400px); padding: 32px; border-radius: 20px;
+            background: white; box-shadow: 0 12px 40px #49327620;
+        }
+        h1, .subtitle, .footer { text-align: center; }
+        .subtitle { color: #716782; }
+        label { display: block; margin: 14px 0 7px; }
+        input {
+            width: 100%; padding: 12px; border: 1px solid #ddd4ee;
+            border-radius: 10px; font-size: 15px;
+        }
+        button {
+            width: 100%; margin-top: 22px; padding: 13px; border: 0;
+            border-radius: 10px; background: #7952c7; color: white;
+            font-size: 16px; cursor: pointer;
+        }
+        .message { color: #b42318; }
+        a { color: #7046b8; }
+    </style>
+</head>
+<body>
+    <main class="card">
+        <h1>Create account</h1>
+        <p class="subtitle">Join Hub-Bot</p>
+
+        {% if messages %}
+            {% for message in messages %}
+                <p class="message">{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+            <label for="username">Username</label>
+            <input id="username" name="username" autocomplete="username" required>
+
+            <label for="email">Email</label>
+            <input id="email" type="email" name="email" autocomplete="email">
+
+            <label for="password">Password</label>
+            <input id="password" type="password" name="password"
+                   autocomplete="new-password" required>
+
+            <label for="confirm_password">Confirm password</label>
+            <input id="confirm_password" type="password"
+                   name="confirm_password" autocomplete="new-password" required>
+
+            <button type="submit">Register</button>
+        </form>
+
+        <p class="footer">
+            Already registered? <a href="{% url 'login' %}">Login</a>
+        </p>
+    </main>
+</body>
+</html>
