@@ -1,4 +1,5 @@
-﻿from google.genai import types
+﻿from django.core.cache import cache
+from google.genai import types
 import json
 import os
 import urllib.request
@@ -175,6 +176,9 @@ def is_weather_question(message):
 
 
 def get_nagpur_weather():
+    cached_weather = cache.get("nagpur_weather")
+    if cached_weather:
+        return cached_weather
     url = (
         "https://api.open-meteo.com/v1/forecast"
         "?latitude=21.1458&longitude=79.0882"
@@ -257,7 +261,9 @@ def get_nagpur_weather():
             )
 
         lines.append("Source: Open-Meteo (open-meteo.com)")
-        return "\n".join(lines)
+        result = "\n".join(lines)
+        cache.set("nagpur_weather", result, 600)
+        return result
 
     except Exception as error:
         # Keep the API key and technical details out of the chat UI.
