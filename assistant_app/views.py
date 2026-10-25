@@ -99,9 +99,18 @@ def logout_page(request):
 # ---------------- CURRENT TIME ----------------
 
 
+
 def is_time_question(message):
     text = message.lower().strip()
     text = " ".join(text.split())
+    text = text.rstrip("?!., ")
+
+    # Single-word commands
+    if text in {
+        "time", "date", "today", "day",
+        "samay", "tareekh", "tarikh", "aaj"
+    }:
+        return True
 
     keywords = [
         "current time",
@@ -112,18 +121,18 @@ def is_time_question(message):
         "today's date",
         "today date",
         "what is today's date",
+        "what is the date",
         "what is the date today",
         "what date is it",
         "what day is today",
         "today's day",
-        "samay",
-        "kitne baje",
-        "abhi time",
         "aaj ki date",
         "aaj ka date",
         "aaj ka din",
         "aaj kaun sa din",
         "aaj kya date hai",
+        "kitne baje",
+        "abhi time",
         "abhi kitna baj raha hai",
     ]
 
