@@ -1,9 +1,12 @@
 ﻿
 import json
+import os
 import urllib.request
 import urllib.error
 from datetime import datetime
 from zoneinfo import ZoneInfo
+
+from google import genai
 
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
@@ -130,8 +133,6 @@ def get_current_time():
 
 def is_weather_question(message):
     text = message.lower().strip()
-
-    # Handle the common typo "whether" instead of "weather".
     text = text.replace("whether", "weather")
 
     keywords = [
@@ -228,44 +229,53 @@ def get_nagpur_weather():
             )
 
         if rain_chance is not None:
-            lines.append(f"Maximum rain probability today: {rain_chance}%")
+            lines.append(
+                f"Maximum rain probability today: {rain_chance}%"
+            )
 
         lines.append("Source: Open-Meteo (open-meteo.com)")
         return "\n".join(lines)
 
-    except (urllib.error.URLError, TimeoutError, ValueError, KeyError):
+    except (
+        urllib.error.URLError,
+        TimeoutError,
+        ValueError,
+        KeyError,
+    ):
         return None
 
 
-# ---------------- LLAMA 3.2 ----------------
+# ---------------- GEMINI AI ----------------
 
-def ask_llama(message):
-    payload = {
-        "model": "llama3.2",
-        "prompt": (
+def ask_gemini(message):
+    api_key = os.environ.get("GEMINI_API_KEY")
+
+    if not api_key:
+        raise RuntimeError(
+            "GEMINI_API_KEY is not configured."
+        )
+
+    client = genai.Client(api_key=api_key)
+
+    response = client.models.generate_content(
+        model="gemini-3.6-flash",
+        contents=(
             "You are Hub-Bot, a helpful AI assistant. "
             "Answer accurately and concisely in 2-5 sentences. "
             "Reply in the same language as the user. "
             "Do not invent live information. "
-            "If asked for live weather, say that live weather "
-            "must come from a weather service.\n\n"
-            f"User: {message}\n"
-            "Assistant:"
+            "For live weather, use the weather service rather "
+            "than guessing.\n\n"
+            f"User: {message}"
         ),
-        "stream": False,
-    }
-
-    req = urllib.request.Request(
-        "http://127.0.0.1:11434/api/generate",
-        data=json.dumps(payload).encode("utf-8"),
-        headers={"Content-Type": "application/json"},
-        method="POST",
     )
 
-    with urllib.request.urlopen(req, timeout=120) as response:
-        result = json.loads(response.read().decode("utf-8"))
+    reply = response.text
 
-    return result.get("response", "").strip()
+    if not reply or not reply.strip():
+        raise RuntimeError("Gemini returned an empty response.")
+
+    return reply.strip()
 
 
 # ---------------- SAVE CHAT MESSAGES ----------------
@@ -287,13 +297,13 @@ def chat_api(request):
         body = json.loads(request.body.decode("utf-8"))
         user_message = body.get("message", "").strip()
 
-        if not user_message:
+        if not isinstance(user_message, str) or not user_message:
             return JsonResponse(
                 {"error": "Please enter a message."},
                 status=400,
             )
 
-        # Save user's message first.
+        # Save the user's message.
         save_chat_message(request.user, "user", user_message)
 
         if is_time_question(user_message):
@@ -309,31 +319,31 @@ def chat_api(request):
                 )
 
         else:
-            reply = ask_llama(user_message)
+            try:
+                reply = ask_gemini(user_message)
 
-            if not reply:
-                reply = "I couldn't generate a response. Please try again."
+            except Exception:
+                # Keep technical details and API keys out of the UI.
+                return JsonResponse(
+                    {
+                        "error": (
+                            "Gemini se response nahi mil raha. "
+                            "API key, model availability aur internet "
+                            "connection check karo."
+                        )
+                    },
+                    status=503,
+                )
 
-        # Save assistant's response.
+        # Save the assistant's response.
         save_chat_message(request.user, "assistant", reply)
 
         return JsonResponse({"reply": reply})
 
-    except json.JSONDecodeError:
+    except (json.JSONDecodeError, UnicodeDecodeError):
         return JsonResponse(
             {"error": "Invalid request data."},
             status=400,
-        )
-
-    except urllib.error.URLError:
-        return JsonResponse(
-            {
-                "error": (
-                    "Cannot connect to Ollama. Make sure Ollama is "
-                    "running and llama3.2 is installed."
-                )
-            },
-            status=503,
         )
 
     except Exception:
