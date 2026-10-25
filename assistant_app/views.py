@@ -1,4 +1,4 @@
-﻿
+﻿from google.genai import types
 import json
 import os
 import urllib.request
@@ -98,8 +98,10 @@ def logout_page(request):
 
 # ---------------- CURRENT TIME ----------------
 
+
 def is_time_question(message):
-    text = message.lower()
+    text = message.lower().strip()
+    text = " ".join(text.split())
 
     keywords = [
         "current time",
@@ -108,11 +110,21 @@ def is_time_question(message):
         "time now",
         "current date",
         "today's date",
-        "what is the date",
-        "what day",
+        "today date",
+        "what is today's date",
+        "what is the date today",
+        "what date is it",
+        "what day is today",
+        "today's day",
         "samay",
         "kitne baje",
+        "abhi time",
         "aaj ki date",
+        "aaj ka date",
+        "aaj ka din",
+        "aaj kaun sa din",
+        "aaj kya date hai",
+        "abhi kitna baj raha hai",
     ]
 
     return any(word in text for word in keywords)
@@ -247,13 +259,12 @@ def get_nagpur_weather():
 
 # ---------------- GEMINI AI ----------------
 
+
 def ask_gemini(message):
     api_key = os.environ.get("GEMINI_API_KEY")
 
     if not api_key:
-        raise RuntimeError(
-            "GEMINI_API_KEY is not configured."
-        )
+        raise RuntimeError("GEMINI_API_KEY is not configured.")
 
     client = genai.Client(api_key=api_key)
 
@@ -261,12 +272,20 @@ def ask_gemini(message):
         model="gemini-3.6-flash",
         contents=(
             "You are Hub-Bot, a helpful AI assistant. "
-            "Answer accurately and concisely in 2-5 sentences. "
-            "Reply in the same language as the user. "
-            "Do not invent live information. "
-            "For live weather, use the weather service rather "
-            "than guessing.\n\n"
+            "Answer in the same language as the user. "
+            "For current events, recent news, latest facts, "
+            "and other time-sensitive questions, use Google "
+            "Search to verify current information. "
+            "Do not guess current facts. "
+            "Keep answers clear and concise.\n\n"
             f"User: {message}"
+        ),
+        config=types.GenerateContentConfig(
+            tools=[
+                types.Tool(
+                    google_search=types.GoogleSearch()
+                )
+            ]
         ),
     )
 
@@ -276,7 +295,6 @@ def ask_gemini(message):
         raise RuntimeError("Gemini returned an empty response.")
 
     return reply.strip()
-
 
 # ---------------- SAVE CHAT MESSAGES ----------------
 
