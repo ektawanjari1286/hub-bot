@@ -211,13 +211,15 @@ def get_nagpur_weather():
     }
 
     try:
-        req = urllib.request.Request(
+        request = urllib.request.Request(
             url,
             headers={"User-Agent": "Hub-Bot/1.0"},
         )
 
-        with urllib.request.urlopen(req, timeout=12) as response:
-            data = json.loads(response.read().decode("utf-8"))
+        with urllib.request.urlopen(request, timeout=20) as response:
+            data = json.loads(
+                response.read().decode("utf-8")
+            )
 
         current = data["current"]
         daily = data.get("daily", {})
@@ -257,14 +259,13 @@ def get_nagpur_weather():
         lines.append("Source: Open-Meteo (open-meteo.com)")
         return "\n".join(lines)
 
-    except (
-        urllib.error.URLError,
-        TimeoutError,
-        ValueError,
-        KeyError,
-    ):
+    except Exception as error:
+        # Keep the API key and technical details out of the chat UI.
+        print(
+            f"Hub-Bot weather error: "
+            f"{type(error).__name__}: {error}"
+        )
         return None
-
 
 # ---------------- GEMINI AI ----------------
 
